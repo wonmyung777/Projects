@@ -9,13 +9,17 @@
 #include "BlynkSimpleEsp8266.h"
 #include "Adafruit_NeoPixel.h"
 
-char auth[] = "NcvvHwbtBNlKj2J75knyR7fEdhT6Z2HT";
-char ssid[] = "KT_GiGA_2G_Wave2_3413";
-char pass[] = "kzcfdc6664";
-char server[] = "blynk-cloud.com";
+#define CONNECTION_DELAY 5000
+#define LED_PIN D7
+#define NUM_OF_PIXELS 16
 
-int port = 8080;
-int ReCnctFlag, ReCnctCount;
+Adafruit_NeoPixel pixels(NUM_OF_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+char auth[] = "NcvvHwbtBNlKj2J75knyR7fEdhT6Z2HT";
+char ssid[] = "Happyhouse";
+char pass[] = "01027643122";
+
+unsigned long lastConnectionAttempt = millis();
 
 BlynkTimer timer;
 

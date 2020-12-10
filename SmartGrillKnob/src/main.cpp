@@ -1,109 +1,67 @@
-// #include "main.h"
 
-// void setup()
-// {
-//     Serial.begin(115200);
-//     WiFi.begin(ssid, pass);
-//     Blynk.config(auth, server, port);
-//     Blynk.connect();
-//     timer.setInterval(1L, app_main);
-// }
-
-// void loop()
-// {
-//     timer.run();
-//     if (Blynk.connected())
-//     {
-//         Blynk.run();
-//     }
-//     else if (ReCnctFlag == 0)
-//     {
-//         ReCnctFlag = 1;
-//         Serial.println("Starting reconnection timer in 5 seconds...");
-//         timer.setTimeout(5000L, []() {
-//             ReCnctFlag = 0;
-//             ReCnctCount++;
-//             Serial.print("Attempting reconnection #");
-//             Serial.println(ReCnctCount);
-//             Blynk.connect();
-//         });
-//     }
-// }
-
-// void app_main()
-// {
-// }
-
-// BLYNK_CONNECTED()
-// {
-//     Serial.println("Connected");
-//     //Blynk.syncAll();
-//     ReCnctCount = 0;
-// }
-
-// BLYNK_WRITE(V0)
-// {
-//     if (param.asInt())
-//     {
-//         Serial.println("Power ON");
-//     }
-//     else
-//     {
-//         Serial.println("Power OFF");
-//     }
-// }
-
-#include <Adafruit_NeoPixel.h>
-
-// Which pin on the Arduino is connected to the NeoPixels?
-#define PIN D7 // On Trinket or Gemma, suggest changing this to 1
-
-// How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS 16 // Popular NeoPixel ring size
-
-// When setting up the NeoPixel library, we tell it how many pixels,
-// and which pin to use to send signals. Note that for older NeoPixel
-// strips you might need to change the third parameter -- see the
-// strandtest example for more information on possible values.
-Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-
-#define DELAYVAL 1000 // Time (in milliseconds) to pause between pixels
+#include "main.h"
 
 void setup()
 {
-    // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
-    // Any other board, you can remove this part (but no harm leaving it):
-#if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
-    clock_prescale_set(clock_div_1);
-#endif
-    // END of Trinket-specific code.
+    Serial.begin(115200);
+    pixels.begin();
+    Blynk.begin(auth, ssid, pass);
+    pixels.clear();
 
-    pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+    timer.setInterval(1L, app_main);
+
+    // pixels.setPixelColor(17, 255, 255, 255);
+
+    // pixels.show(); // Send the updated pixel colors to the hardware.
 }
 
 void loop()
 {
-    // pixels.clear(); // Set all pixel colors to 'off'
+    // check WiFi connection:
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        // (optional) "offline" part of code
 
-    // // The first NeoPixel in a strand is #0, second is 1, all the way up
-    // // to the count of pixels minus one.
-    // //   for(int i=0; i<NUMPIXELS; i++) { // For each pixel...
-    // delay(DELAYVAL);
-    // // pixels.Color() takes RGB values, from 0,0,0 up to 255,255,255
-    // // Here we're using a moderately bright green color:
-    pixels.setPixelColor(5, pixels.Color(0, 0, 0));
+        // check delay:
+        if ((millis() - lastConnectionAttempt) >= CONNECTION_DELAY)
+        {
+            lastConnectionAttempt = millis();
 
-    pixels.show(); // Send the updated pixel colors to the hardware.
+            // attempt to connect to Wifi network:
+            if (pass && strlen(pass))
+            {
+                WiFi.begin((char *)ssid, (char *)pass);
+            }
+            else
+            {
+                WiFi.begin((char *)ssid);
+            }
+        }
+    }
+    else
+    {
+        Blynk.run();
+    }
+}
 
-    // delay(DELAYVAL); // Pause before next pass through loop
+void app_main()
+{
+}
 
-    // pixels.clear();
-    // delay(DELAYVAL); // Pause before next pass through loop
+BLYNK_CONNECTED()
+{
+    Serial.println("Connected");
+    //Blynk.syncAll();
+}
 
-    // pixels.setPixelColor(5, pixels.Color(0, 155, 0));
-
-    // pixels.show();
-
-    // delay(DELAYVAL);
-    //   }
+BLYNK_WRITE(V0)
+{
+    if (param.asInt())
+    {
+        Serial.println("Power ON");
+    }
+    else
+    {
+        Serial.println("Power OFF");
+    }
 }
