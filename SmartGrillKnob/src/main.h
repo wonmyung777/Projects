@@ -8,6 +8,9 @@
 #include "ESP8266WiFi.h"
 #include "BlynkSimpleEsp8266.h"
 #include "Adafruit_NeoPixel.h"
+#include "ESP8266mDNS.h"
+#include "WiFiUdp.h"
+#include "ArduinoOTA.h"
 
 #define CONNECTION_DELAY 5000
 #define LED_PIN D7
@@ -18,7 +21,9 @@ Adafruit_NeoPixel pixels(NUM_OF_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 char auth[] = "NcvvHwbtBNlKj2J75knyR7fEdhT6Z2HT";
 char ssid[] = "Happyhouse";
 char pass[] = "01027643122";
+char server[] = "blynk-cloud.com";
 
+int port = 8080;
 unsigned long lastConnectionAttempt = millis();
 
 BlynkTimer timer;
