@@ -54,9 +54,6 @@
 // }
 
 #include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
-#include <avr/power.h> // Required for 16 MHz Adafruit Trinket
-#endif
 
 // Which pin on the Arduino is connected to the NeoPixels?
 #define PIN D7 // On Trinket or Gemma, suggest changing this to 1
