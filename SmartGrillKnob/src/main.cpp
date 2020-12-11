@@ -79,16 +79,21 @@ void setup()
     });
 
     ArduinoOTA.begin();
-    Serial.println("Ready");
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
 
+    terminal.clear();
+    VirtualTerminal((char *)"Device is started");
+    VirtualTerminal((char *)"IP address");
+    terminal.print(WiFi.localIP());
+    terminal.flush();
     timer.setInterval(1L, app_main);
 
     pixels.begin();
     pixels.clear();
     // pixels.setPixelColor(17, 255, 255, 255);
     // pixels.show(); // Send the updated pixel colors to the hardware.
+
+    //Reset button to off
+    Blynk.virtualWrite(V2, 0);
 }
 
 void loop()
@@ -128,6 +133,7 @@ void app_main()
 BLYNK_CONNECTED()
 {
     Serial.println("Connected");
+    VirtualTerminal((char *)"Connected");
     //Blynk.syncAll();
 }
 
@@ -136,9 +142,25 @@ BLYNK_WRITE(V0)
     if (param.asInt())
     {
         Serial.println("Power ON");
+        VirtualTerminal((char *)"Power ON");
     }
     else
     {
         Serial.println("Power OFF");
+        VirtualTerminal((char *)"Power OFF");
     }
+}
+
+BLYNK_WRITE(V2)
+{
+    if (param.asInt())
+    {
+        ESP.restart();
+    }
+}
+
+void VirtualTerminal(char *msg)
+{
+    terminal.print(msg);
+    terminal.flush();
 }
