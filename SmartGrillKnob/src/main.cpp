@@ -89,10 +89,10 @@ void setup()
 
     pixels.begin();
     pixels.clear();
-    // pixels.setPixelColor(17, 255, 255, 255);
-    // pixels.show(); // Send the updated pixel colors to the hardware.
+    ShowColorToKnob(0, 0, 0);
 
     //Reset button to off
+    Blynk.virtualWrite(V0, 0);
     Blynk.virtualWrite(V2, 0);
 }
 
@@ -102,7 +102,7 @@ void loop()
     if (WiFi.status() != WL_CONNECTED)
     {
         // (optional) "offline" part of code
-
+        
         // check delay:
         if ((millis() - lastConnectionAttempt) >= CONNECTION_DELAY)
         {
@@ -133,7 +133,7 @@ void app_main()
 BLYNK_CONNECTED()
 {
     Serial.println("Connected");
-    VirtualTerminal((char *)"Connected");
+    // VirtualTerminal((char *)"Connected");
     //Blynk.syncAll();
 }
 
@@ -143,24 +143,43 @@ BLYNK_WRITE(V0)
     {
         Serial.println("Power ON");
         VirtualTerminal((char *)"Power ON");
+        ShowColorToKnob(255, 255, 255);
+        power = true;
     }
     else
     {
         Serial.println("Power OFF");
         VirtualTerminal((char *)"Power OFF");
+        ShowColorToKnob(0, 0, 0);
+        power = false;
     }
 }
 
-BLYNK_WRITE(V2)
+// BLYNK_WRITE(V2)
+// {
+//     if (param.asInt())
+//     {
+//         ESP.restart();
+//     }
+// }
+
+BLYNK_WRITE(V3)
 {
-    if (param.asInt())
-    {
-        ESP.restart();
-    }
+    if (power)
+        ShowColorToKnob(param[0].asInt(), param[1].asInt(), param[2].asInt());
 }
 
 void VirtualTerminal(char *msg)
 {
     terminal.print(msg);
     terminal.flush();
+}
+
+void ShowColorToKnob(uint8_t red, uint8_t green, uint8_t blue)
+{
+    for (int i = 0; i < NUM_OF_PIXELS; i++)
+    {
+        pixels.setPixelColor(i, red, green, blue);
+    }
+    pixels.show();
 }

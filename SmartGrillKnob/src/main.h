@@ -27,6 +27,7 @@ char ssid[] = "KT_GiGA_2G_Wave2_3413";
 char pass[] = "kzcfdc6664";
 char server[] = "blynk-cloud.com";
 
+bool power;
 int port = 8080;
 unsigned long lastConnectionAttempt = millis();
 
@@ -34,5 +35,6 @@ BlynkTimer timer;
 
 void app_main();
 void VirtualTerminal(char *msg);
+void ShowColorToKnob(uint8_t red, uint8_t green, uint8_t blue);
 
 #endif //_MAIN_H_
