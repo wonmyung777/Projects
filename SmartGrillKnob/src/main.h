@@ -17,6 +17,14 @@
 #define LED_PIN D7
 #define NUM_OF_PIXELS 16
 
+enum
+{
+    DONOTHING,
+    POWERON,
+    POWEROFF,
+    RGB,
+};
+
 Adafruit_NeoPixel pixels(NUM_OF_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 WidgetTerminal terminal(V1);
 
@@ -27,7 +35,8 @@ char ssid[] = "KT_GiGA_2G_Wave2_3413";
 char pass[] = "kzcfdc6664";
 char server[] = "blynk-cloud.com";
 
-bool power;
+uint8_t status, red, green, blue;
+uint8_t power = POWEROFF;
 int port = 8080;
 unsigned long lastConnectionAttempt = millis();
 

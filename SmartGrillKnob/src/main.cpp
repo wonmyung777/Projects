@@ -85,7 +85,7 @@ void setup()
     VirtualTerminal((char *)"IP address");
     terminal.print(WiFi.localIP());
     terminal.flush();
-    timer.setInterval(1L, app_main);
+    timer.setInterval(10L, app_main);
 
     pixels.begin();
     pixels.clear();
@@ -102,7 +102,7 @@ void loop()
     if (WiFi.status() != WL_CONNECTED)
     {
         // (optional) "offline" part of code
-        
+
         // check delay:
         if ((millis() - lastConnectionAttempt) >= CONNECTION_DELAY)
         {
@@ -122,12 +122,30 @@ void loop()
     else
     {
         Blynk.run();
+        timer.run();
         ArduinoOTA.handle();
     }
 }
 
 void app_main()
 {
+    switch (status)
+    {
+    case DONOTHING:
+        break;
+    case POWERON:
+        ShowColorToKnob(red, green, blue);
+        break;
+    case POWEROFF:
+        ShowColorToKnob(0, 0, 0);
+        break;
+    case RGB:
+        ShowColorToKnob(red, green, blue);
+        break;
+    default:
+        break;
+    }
+    status = DONOTHING;
 }
 
 BLYNK_CONNECTED()
@@ -143,15 +161,21 @@ BLYNK_WRITE(V0)
     {
         Serial.println("Power ON");
         VirtualTerminal((char *)"Power ON");
-        ShowColorToKnob(255, 255, 255);
-        power = true;
+        status = POWERON;
+        power = POWERON;
+        if (red == 0 && green == 0 && blue == 0)
+        {
+            red = 255;
+            green = 255;
+            blue = 255;
+        }
     }
     else
     {
         Serial.println("Power OFF");
         VirtualTerminal((char *)"Power OFF");
-        ShowColorToKnob(0, 0, 0);
-        power = false;
+        status = POWEROFF;
+        power = POWEROFF;
     }
 }
 
@@ -165,8 +189,18 @@ BLYNK_WRITE(V0)
 
 BLYNK_WRITE(V3)
 {
-    if (power)
-        ShowColorToKnob(param[0].asInt(), param[1].asInt(), param[2].asInt());
+    if (power == POWERON)
+    {
+        VirtualTerminal((char *)"RGB color is set");
+        red = param[0].asInt();
+        green = param[1].asInt();
+        blue = param[2].asInt();
+        status = RGB;
+    }
+    else
+    {
+        VirtualTerminal((char *)"RGB color is not set because device is off");
+    }
 }
 
 void VirtualTerminal(char *msg)
