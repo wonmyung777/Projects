@@ -9,6 +9,7 @@ void setup()
     WiFi.begin(ssid, pass);
     Blynk.config(auth, server, port);
     Blynk.connect();
+    timer.setInterval(10L, app_main);
 
     while (WiFi.waitForConnectResult() != WL_CONNECTED)
     {
@@ -85,7 +86,6 @@ void setup()
     VirtualTerminal((char *)"IP address");
     terminal.print(WiFi.localIP());
     terminal.flush();
-    timer.setInterval(10L, app_main);
 
     pixels.begin();
     pixels.clear();
@@ -98,32 +98,23 @@ void setup()
 
 void loop()
 {
-    // check WiFi connection:
-    if (WiFi.status() != WL_CONNECTED)
-    {
-        // (optional) "offline" part of code
-
-        // check delay:
-        if ((millis() - lastConnectionAttempt) >= CONNECTION_DELAY)
-        {
-            lastConnectionAttempt = millis();
-
-            // attempt to connect to Wifi network:
-            if (pass && strlen(pass))
-            {
-                WiFi.begin((char *)ssid, (char *)pass);
-            }
-            else
-            {
-                WiFi.begin((char *)ssid);
-            }
-        }
-    }
-    else
+    timer.run();
+    ArduinoOTA.handle();
+    if (Blynk.connected())
     {
         Blynk.run();
-        timer.run();
-        ArduinoOTA.handle();
+    }
+    else if (ReCnctFlag == 0)
+    {
+        ReCnctFlag = 1;
+        Serial.println("Starting reconnection timer in 5 seconds...");
+        timer.setTimeout(5000L, []() {
+            ReCnctFlag = 0;
+            ReCnctCount++;
+            Serial.print("Attempting reconnection #");
+            Serial.println(ReCnctCount);
+            Blynk.connect();
+        });
     }
 }
 
@@ -151,8 +142,8 @@ void app_main()
 BLYNK_CONNECTED()
 {
     Serial.println("Connected");
-    // VirtualTerminal((char *)"Connected");
     //Blynk.syncAll();
+    ReCnctCount = 0;
 }
 
 BLYNK_WRITE(V0)

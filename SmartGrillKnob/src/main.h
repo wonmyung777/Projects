@@ -11,6 +11,7 @@
 #include "ESP8266mDNS.h"
 #include "WiFiUdp.h"
 #include "ArduinoOTA.h"
+#include "WiFiClient.h"
 #include <stdio.h>
 
 #define CONNECTION_DELAY 5000
@@ -38,7 +39,7 @@ char server[] = "blynk-cloud.com";
 uint8_t status, red, green, blue;
 uint8_t power = POWEROFF;
 int port = 8080;
-unsigned long lastConnectionAttempt = millis();
+int ReCnctFlag, ReCnctCount;
 
 BlynkTimer timer;
 
