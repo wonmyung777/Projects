@@ -156,9 +156,9 @@ BLYNK_WRITE(V0)
         power = POWERON;
         if (red == 0 && green == 0 && blue == 0)
         {
-            red = 255;
-            green = 255;
-            blue = 255;
+            red = 125;
+            green = 125;
+            blue = 125;
         }
     }
     else
@@ -170,13 +170,36 @@ BLYNK_WRITE(V0)
     }
 }
 
-// BLYNK_WRITE(V2)
-// {
-//     if (param.asInt())
-//     {
-//         ESP.restart();
-//     }
-// }
+BLYNK_WRITE(V1)
+{
+    if (String("reboot") == param.asStr())
+    {
+        VirtualTerminal((char *)"Device will be rebooted shortly");
+        delay(200);
+        ESP.restart();
+    }
+    else if (String("reset") == param.asStr())
+    {
+        VirtualTerminal((char *)"Device will be restarted shortly");
+        delay(200);
+        ESP.reset();
+    }
+    else if (String("clear") == param.asStr())
+    {
+        terminal.clear();
+    }
+    else if (String("command") == param.asStr())
+    {
+        terminal.clear();
+        terminal.println("-------cmd-------");
+        terminal.print("reboot, reset, clear");
+        terminal.flush();
+    }
+    else
+    {
+        VirtualTerminal((char *)"Not existing command");
+    }
+}
 
 BLYNK_WRITE(V3)
 {
@@ -186,6 +209,12 @@ BLYNK_WRITE(V3)
         red = param[0].asInt();
         green = param[1].asInt();
         blue = param[2].asInt();
+        if (red == 255 && green == 255 && blue == 255)
+        {
+            red = 125;
+            green = 125;
+            blue = 125;
+        }
         status = RGB;
     }
     else
